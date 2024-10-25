@@ -12,5 +12,5 @@ No noise code reviews with code context and custom rules
 
 ## Self Deployment
 
-- [As CI Job](./docs/use-as-ci-job.md)
 - [As Bot Server](./docs/deploy-as-bot-server.md)
+- [As CI Job](./docs/use-as-ci-job.md)
