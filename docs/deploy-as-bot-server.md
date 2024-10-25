@@ -25,7 +25,7 @@
     3. `GH_BOT_NAME` -> The app name that have been set
     4. `GH_APP_PRIVATE_KEY_BASE64` -> Generate a new private key from the app details page under "Private keys" section. And encode it in base64 format.
     5. `OPENAI_API_KEY` -> OpenAI key
-    6. `ONLY_WHITELISTED_ACCOUNTS` -> Your gitlab org url
+    6. `ONLY_WHITELISTED_ACCOUNTS` -> Your github org url
 8. [Follow this section](#deploy-panto-service) to deploy Panto service in your infra.
 9. Now Install the app into your account and start using it.
 
