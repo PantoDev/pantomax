@@ -1,0 +1,15 @@
+{% if pr_title -%}
+### PR Tite:
+{{ pr_title }}
+{% endif -%}
+
+
+{% if code_diffs -%}
+### Git diff attached below:
+
+--- START OF DIFFS WITH file path ---
+
+{{ code_diffs }}
+
+--- END OF DIFFS WITH file path ---
+{% endif %}

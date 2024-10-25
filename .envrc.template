@@ -1,0 +1,59 @@
+## General Configs
+export ENV='PRODUCTION'
+
+## OpenAI Configs
+export OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+export OPENAI_MODEL="gpt-4o"
+
+## GitHub Configs (if needed)
+# export GH_APP_ID=<YOUR_GITHUB_APP_ID>
+# export GH_APP_PRIVATE_KEY_BASE64=<YOUR_GITHUB_APP_PRIVATE_KEY_BASE64>
+# export GH_WEBHOOK_SECRET=<YOUR_GITHUB_WEBHOOK_SECRET>
+# export GH_BOT_NAME=<YOUR_GITHUB_BOT_NAME>
+
+## Bitbucket Configs (if needed)
+# export BITBUCKET_APP_BASE_URL=<YOUR_BITBUCKET_APP_BASE_URL>
+# export BITBUCKET_APP_KEY=<YOUR_BITBUCKET_APP_KEY>
+
+## Whitelisting
+### This is only valid if DEFAULT_CONFIG_STORAGE_SRV=NOOP (default)
+export ONLY_WHITELISTED_ACCOUNTS="https://github.com/<YOUR_GITHUB_USERNAME>"
+
+## GitLab Configs (if needed - only for if panto self-deployed)
+# export MY_GL_WEBHOOK_SECRET=<YOUR_GITLB_WEBHOOK_SECRET>
+# export MY_GL_ACCESS_TOKEN=<YOUR_GITLB_ACCESS_TOKEN>
+
+## Optional Configs
+export GUNICORN_WORKER_COUNT=4
+export ENABLE_AUTO_PR_REVIEW='false'
+# export EXPANDED_DIFF_LINES=
+# export LLM_TWO_WAY_CORRECTION_ENABLED=
+# export LLM_TWO_WAY_CORRECTION_THRESHOLD=
+# export LLM_TWO_WAY_CORRECTION_SOFT_THRESHOLD=
+# export LLM_LOG_INPUT_OUTPUT=
+# export LLM_LOG_USAGES=
+# export LLM_LOG_PATH=
+# export ENABLE_BRANDING=
+# export MAX_TOKEN_BUDGET_FOR_REVIEW=
+# export MAX_TOKEN_BUDGET_FOR_AUTO_REVIEW=
+
+### Configurable services
+# export DEFAULT_NOTIFICATION_SRV=TELEGRAM/NOOP # default NOOP
+# export DEFAULT_METRICS_COLLECTION_SRV=DB/NOOP # default NOOP
+# export DEFAULT_CONFIG_STORAGE_SRV=FIREBASE/DB/NOOP # default NOOP
+
+### Firebase configs
+# export FIREBASE_CREDENTIALS_BASE64=
+
+### DB or Postgres configs
+# export PGHOST=
+# export PGPORT=
+# export PGDATABASE=
+# export PGUSER=
+# export PGPASSWORD=
+
+### Telegram configs
+# export TELEGRAM_BOT_TOKEN=
+# export TELEGRAM_CHAT_ID=
+# export TELEGRAM_WEBHOOK_SECRET_KEY=
+# export TELEGRAM_WEBHOOK_SECRET_VALUE=

@@ -1,0 +1,23 @@
+{% if pr_title %}
+### PR Tite:
+{{ pr_title }}
+{% endif %}
+
+### Reviews from junior software engineer:
+
+--- START OF REVIEWS ---
+
+{{ formattted_reviews }}
+
+--- END OF REVIEWS ---
+
+
+{% if code_diffs %}
+### Context of code (Git diff):
+
+--- START OF DIFFS WITH file path ---
+
+{{ code_diffs }}
+
+--- END OF DIFFS WITH file path ---
+{% endif %}

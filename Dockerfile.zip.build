@@ -1,0 +1,15 @@
+FROM debian:bookworm-slim
+
+ARG ZIP_FILE_PATH=deployment.zip
+ARG APP_VERSION
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y zip
+
+COPY . .
+
+RUN cp .envrc.prod .envrc
+RUN echo "\nexport APP_VERSION=$APP_VERSION" >> .envrc
+
+RUN zip -r $ZIP_FILE_PATH ./

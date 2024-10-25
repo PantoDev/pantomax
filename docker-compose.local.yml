@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16.4
+    environment:
+      POSTGRES_USER: $PGUSER
+      POSTGRES_PASSWORD: $PGPASSWORD
+      POSTGRES_DB: $PGDATABASE
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - panto_db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  panto_db:
+    external: true
