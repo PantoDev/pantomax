@@ -87,7 +87,7 @@ TELEGRAM_WEBHOOK_SECRET_VALUE = os.getenv(
   'TELEGRAM_WEBHOOK_SECRET_VALUE')  # Telegram webhook query parameter value
 
 BRANDING_PREFIX = "[![Panto Max](https://raw.githubusercontent.com/pantomaxdotco/assets/refs/heads/main/pr-comment-branding-50.png)](https://www.pantomax.co)"  # noqa
-ENABLE_BRANDING = (os.getenv('ENABLE_BRANDING') or 'true').lower() in TRUTH_VALUES
+ENABLE_BRANDING = (os.getenv('ENABLE_BRANDING') or 'false').lower() in TRUTH_VALUES
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader('panto/prompts'))
 
 MAX_TOKEN_BUDGET_FOR_REVIEW = int(os.getenv('MAX_TOKEN_BUDGET_FOR_REVIEW', 100000))

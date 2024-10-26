@@ -55,7 +55,7 @@
 2. [Follow this section](#deploy-panto-service) to deploy Panto service in your infra.
 3. Follow [this doc](https://docs.google.com/document/d/1S9BI_6pSa1j8IXDA2KLcq7sjScj0tDYz-j-5PpcHx9w/edit?usp=sharing) to create access token and setup webhooks
 
-## Deploy Panto service
+## Deploy / run Panto service
 
 1. Generate a `.envrc` from [`.envrc.template`](../.envrc.template) and modifiy as per need.
 2. `make image.build` to build docker image. Default name `panto`.
