@@ -26,7 +26,7 @@
     4. `GH_APP_PRIVATE_KEY_BASE64` -> Generate a new private key from the app details page under "Private keys" section. And encode it in base64 format.
     5. `OPENAI_API_KEY` -> OpenAI key
     6. `ONLY_WHITELISTED_ACCOUNTS` -> Your github org url
-8. [Follow this section](#deploy-panto-service) to deploy Panto service in your infra.
+8. [Follow this section](#deploy--run-panto-service) to deploy Panto service in your infra.
 9. Now Install the app into your account and start using it.
 
 ## For Bitbucket
@@ -39,7 +39,7 @@
     3. `OPENAI_API_KEY` -> OpenAI key
     4. `ONLY_WHITELISTED_ACCOUNTS` -> Your Bitbucket workspace url
     5. Based on the persistence storage, fill up the .envrc
-2. [Follow this section](#deploy-panto-service) to deploy Panto service in your infra.
+2. [Follow this section](#deploy--run-panto-service) to deploy Panto service in your infra.
 3. Go to bitbucket "Develop apps" section under the workspace settings.
     1. Click on the "Register App" and use `https://<YOUR_BITBUCKET_APP_BASE_URL>/bitbucket/atlassian-connect.json` in the Descriptor URL section.
     2. Register App.
@@ -52,7 +52,7 @@
     2. `ONLY_WHITELISTED_ACCOUNTS` -> Your gitlab org url
     3. `MY_GL_WEBHOOK_SECRET` -> Generate one random secret for the webhook verification.
     4. `MY_GL_ACCESS_TOKEN` -> Check the point 3.
-2. [Follow this section](#deploy-panto-service) to deploy Panto service in your infra.
+2. [Follow this section](#deploy--run-panto-service) to deploy Panto service in your infra.
 3. Follow [this doc](https://docs.google.com/document/d/1S9BI_6pSa1j8IXDA2KLcq7sjScj0tDYz-j-5PpcHx9w/edit?usp=sharing) to create access token and setup webhooks
 
 ## Deploy / run Panto service
