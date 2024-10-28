@@ -15,13 +15,14 @@ export OPENAI_MODEL="gpt-4o"
 # export BITBUCKET_APP_BASE_URL=<YOUR_BITBUCKET_APP_BASE_URL>
 # export BITBUCKET_APP_KEY=<YOUR_BITBUCKET_APP_KEY>
 
+## GitLab Configs (if needed - only for if panto self-deployed)
+# export MY_GL_WEBHOOK_SECRET=<YOUR_GITLB_WEBHOOK_SECRET>
+# export MY_GL_ACCESS_TOKEN=<YOUR_GITLB_ACCESS_TOKEN>
+
 ## Whitelisting
 ### This is only valid if DEFAULT_CONFIG_STORAGE_SRV=NOOP (default)
 export ONLY_WHITELISTED_ACCOUNTS="https://github.com/<YOUR_GITHUB_USERNAME>"
 
-## GitLab Configs (if needed - only for if panto self-deployed)
-# export MY_GL_WEBHOOK_SECRET=<YOUR_GITLB_WEBHOOK_SECRET>
-# export MY_GL_ACCESS_TOKEN=<YOUR_GITLB_ACCESS_TOKEN>
 
 ## Optional Configs
 export GUNICORN_WORKER_COUNT=4
@@ -52,8 +53,10 @@ export ENABLE_AUTO_PR_REVIEW='false'
 # export PGUSER=
 # export PGPASSWORD=
 
-### Telegram configs
+### Telegram notifcation configs
 # export TELEGRAM_BOT_TOKEN=
 # export TELEGRAM_CHAT_ID=
+
+## Telegram configs for operations (e.g. configs management)
 # export TELEGRAM_WEBHOOK_SECRET_KEY=
 # export TELEGRAM_WEBHOOK_SECRET_VALUE=
