@@ -1,4 +1,5 @@
-from panto.config import (EXPANDED_DIFF_LINES, GPT_MAX_TOKENS, IS_PROD,
+from panto.config import (ANTHROPIC_API_KEY, ANTHROPIC_MODEL, DEFAULT_REVIEW_LLM_SRV,
+                          EXPANDED_DIFF_LINES, GPT_MAX_TOKENS, IS_PROD,
                           MAX_TOKEN_BUDGET_FOR_AUTO_REVIEW, MAX_TOKEN_BUDGET_FOR_REVIEW,
                           OPENAI_API_KEY, OPENAI_MODEL)
 from panto.data_models.git import PRStatus
@@ -139,14 +140,12 @@ class PRActions:
     await notification_srv.emit_new_pr_review_request(repo_url, pr_no)
 
     if llmsrv is None:
-      llm_srv_name = LLMServiceType.NOOP \
-        if not IS_PROD and 'noop' in comment_body else LLMServiceType.OPENAI
-      llmsrv = await create_llm_service(
-        service_name=llm_srv_name,
-        max_tokens=GPT_MAX_TOKENS,
-        api_key=OPENAI_API_KEY,
-        model=OPENAI_MODEL,
-      )
+      is_noop = not IS_PROD and 'noop' in comment_body
+      if is_noop:
+        llm_srv_name = LLMServiceType.NOOP
+      else:
+        llm_srv_name = LLMServiceType(DEFAULT_REVIEW_LLM_SRV)
+      llmsrv = await _init_llmsrv(llm_srv_name)
 
     review_config = await get_review_config(gitsrv, config_storage_srv, pr_no, repo_url)
     if not review_config.enabled:
@@ -338,6 +337,7 @@ class PRActions:
 
 
 def sum_llm_usages(llm_usages: list[LLMUsage]) -> LLMUsage:
+  assert len(llm_usages) > 0, "No usages to sum"
   net_usage = LLMUsage(
     system_token=0,
     user_token=0,
@@ -345,6 +345,7 @@ def sum_llm_usages(llm_usages: list[LLMUsage]) -> LLMUsage:
     output_token=0,
     total_token=0,
     latency=0,
+    llm=llm_usages[0].llm,
   )
   for usage in llm_usages:
     net_usage.system_token += usage.system_token
@@ -395,3 +396,25 @@ async def _get_last_reviewed_data(
     review_data = review_data.review_json
     prsuggestions = PRSuggestions.model_validate(review_data)
     return prsuggestions, last_review_session.id
+
+
+async def _init_llmsrv(llm_type: LLMServiceType) -> LLMService:
+  if llm_type == LLMServiceType.NOOP:
+    llmsrv = await create_llm_service(service_name=llm_type)
+  elif llm_type == LLMServiceType.OPENAI:
+    llmsrv = await create_llm_service(
+      service_name=llm_type,
+      max_tokens=GPT_MAX_TOKENS,
+      api_key=OPENAI_API_KEY,
+      model=OPENAI_MODEL,
+    )
+  elif llm_type == LLMServiceType.ANTHROPIC:
+    llmsrv = await create_llm_service(
+      service_name=llm_type,
+      api_key=ANTHROPIC_API_KEY,
+      model=ANTHROPIC_MODEL,
+    )
+  else:
+    raise NotImplementedError(f"Unspported llm_type: {llm_type}")
+
+  return llmsrv

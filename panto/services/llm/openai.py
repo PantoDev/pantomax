@@ -4,7 +4,7 @@ import tiktoken
 from openai import APIError as OpenAIAPIError
 from openai import OpenAI
 
-from .llm_service import LLMService, LLMUsage
+from .llm_service import LLMService, LLMServiceType, LLMUsage
 
 openai_models_max_tokens_map = {
   "gpt-4o": 128000,
@@ -36,7 +36,7 @@ class OpenAIService(LLMService):
     if isinstance(user_msgs, str):
       user_msgs = [user_msgs]
 
-    latency_start = time.time()
+    timer_start = time.time()
 
     messages = [{
       "role": "system",
@@ -65,14 +65,18 @@ class OpenAIService(LLMService):
     output_token = len(await self.get_encode(response))
     total_token = system_token + user_token + output_token
 
-    latency_end = time.time()
+    timer_end = time.time()
     usages = LLMUsage(
       system_token=system_token,
       user_token=user_token,
       output_token=output_token,
       total_input_token=system_token + user_token,
       total_token=total_token,
-      latency=int(latency_end - latency_start),
+      latency=int(timer_end - timer_start),
+      llm=self.get_type(),
     )
 
     return response, usages
+
+  def get_type(self) -> LLMServiceType:
+    return LLMServiceType.OPENAI

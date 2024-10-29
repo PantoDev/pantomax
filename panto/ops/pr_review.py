@@ -528,12 +528,15 @@ class PRReview():
     discarded_suggestions: list[Suggestion] = []
 
     filewise_suggestions: dict[str, list[Suggestion]] = {}
-    llm_usages = LLMUsage(system_token=0,
-                          user_token=0,
-                          output_token=0,
-                          total_token=0,
-                          latency=0,
-                          total_input_token=0)
+    llm_usages = LLMUsage(
+      system_token=0,
+      user_token=0,
+      output_token=0,
+      total_token=0,
+      latency=0,
+      total_input_token=0,
+      llm=self.llmsrv.get_type(),
+    )
     for suggestion in suggestions:
       file_path = suggestion.file_path or "$$NO_FILE$$"
       if file_path not in filewise_suggestions:

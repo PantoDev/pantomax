@@ -3,7 +3,8 @@ import os
 
 import click
 
-from panto.config import DB_URI, GPT_MAX_TOKENS, OPENAI_API_KEY, OPENAI_MODEL
+from panto.config import (ANTHROPIC_API_KEY, ANTHROPIC_MODEL, DB_URI, GPT_MAX_TOKENS,
+                          OPENAI_API_KEY, OPENAI_MODEL)
 from panto.logging import log
 from panto.ops.pr_review_actions import PRActions
 from panto.services.config_storage.config_storage import create_config_storage_service
@@ -55,13 +56,19 @@ async def _init_gitsrv(gitsrv_type: GitServiceType,
 
 async def _init_llmsrv(llm_type: LLMServiceType) -> LLMService:
   if llm_type == LLMServiceType.NOOP:
-    llmsrv = await create_llm_service(service_name=LLMServiceType.NOOP)
+    llmsrv = await create_llm_service(service_name=llm_type)
   elif llm_type == LLMServiceType.OPENAI:
     llmsrv = await create_llm_service(
-      service_name=LLMServiceType.OPENAI,
+      service_name=llm_type,
       max_tokens=GPT_MAX_TOKENS,
       api_key=OPENAI_API_KEY,
       model=OPENAI_MODEL,
+    )
+  elif llm_type == LLMServiceType.ANTHROPIC:
+    llmsrv = await create_llm_service(
+      service_name=llm_type,
+      api_key=ANTHROPIC_API_KEY,
+      model=ANTHROPIC_MODEL,
     )
   else:
     raise NotImplementedError(f"Unspported llm_type: {llm_type}")
