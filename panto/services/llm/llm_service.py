@@ -6,10 +6,12 @@ from pydantic import BaseModel
 
 class LLMServiceType(str, enum.Enum):
   OPENAI = "OPENAI"
+  ANTHROPIC = "ANTHROPIC"
   NOOP = "NOOP"
 
 
 class LLMUsage(BaseModel):
+  llm: LLMServiceType = LLMServiceType.OPENAI
   system_token: int
   user_token: int
   total_input_token: int
@@ -35,6 +37,10 @@ class LLMService(abc.ABC):
                 system_msg: str,
                 user_msgs: str | list[str],
                 temperature: float = 0) -> tuple[str, LLMUsage]:
+    pass
+
+  @abc.abstractmethod
+  def get_type(self) -> LLMServiceType:
     pass
 
 
@@ -67,5 +73,9 @@ async def create_llm_service(
   if service_name == LLMServiceType.NOOP:
     from .noopgpt import NoopGPTService
     return NoopGPTService(**args)
+
+  if service_name == LLMServiceType.ANTHROPIC:
+    from .anthropic import AnthropicService
+    return AnthropicService(**args)
 
   raise Exception(f"Unknown service: {service_name}")

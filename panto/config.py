@@ -44,6 +44,12 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 GPT_MAX_TOKENS = int(
   os.getenv("GPT_MAX_TOKENS")) if os.getenv("GPT_MAX_TOKENS") else None  # type: ignore
 
+# Anthropic Configs
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+DEFAULT_REVIEW_LLM_SRV = os.getenv('DEFAULT_REVIEW_LLM_SRV') or 'OPENAI'
+
 # GitHub Configs
 GH_APP_ID = os.getenv('GH_APP_ID')
 GH_APP_PRIVATE_KEY = _load_base64_key('GH_APP_PRIVATE_KEY_BASE64', required=False)

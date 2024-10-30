@@ -1,6 +1,6 @@
 import random
 
-from panto.services.llm.llm_service import LLMService, LLMUsage
+from panto.services.llm.llm_service import LLMService, LLMServiceType, LLMUsage
 
 
 class NoopGPTService(LLMService):
@@ -29,4 +29,8 @@ class NoopGPTService(LLMService):
       total_input_token=system_token + user_token,
       total_token=total_token,
       latency=0,
+      llm=self.get_type(),
     )
+
+  def get_type(self) -> LLMServiceType:
+    return LLMServiceType.NOOP

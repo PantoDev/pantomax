@@ -2,8 +2,12 @@
 export ENV='PRODUCTION'
 
 ## OpenAI Configs
-export OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
-export OPENAI_MODEL="gpt-4o"
+# export OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+# export OPENAI_MODEL="gpt-4o"
+
+## Anthropic / Claude Configs (if needed)
+# export ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>
+# export ANTHROPIC_MODEL="claude-3-5-sonnet-latest"
 
 ## GitHub Configs (if needed)
 # export GH_APP_ID=<YOUR_GITHUB_APP_ID>
@@ -42,6 +46,7 @@ export ENABLE_AUTO_PR_REVIEW='false'
 # export DEFAULT_NOTIFICATION_SRV=TELEGRAM/NOOP # default NOOP
 # export DEFAULT_METRICS_COLLECTION_SRV=DB/NOOP # default NOOP
 # export DEFAULT_CONFIG_STORAGE_SRV=FIREBASE/DB/NOOP # default NOOP
+# DEFAULT_REVIEW_LLM_SRV=ANTHROPIC/OPENAI # default OPENAI
 
 ### Firebase configs
 # export FIREBASE_CREDENTIALS_BASE64=
