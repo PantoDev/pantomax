@@ -337,7 +337,6 @@ class PRActions:
 
 
 def sum_llm_usages(llm_usages: list[LLMUsage]) -> LLMUsage:
-  assert len(llm_usages) > 0, "No usages to sum"
   net_usage = LLMUsage(
     system_token=0,
     user_token=0,
@@ -345,7 +344,6 @@ def sum_llm_usages(llm_usages: list[LLMUsage]) -> LLMUsage:
     output_token=0,
     total_token=0,
     latency=0,
-    llm=llm_usages[0].llm,
   )
   for usage in llm_usages:
     net_usage.system_token += usage.system_token
@@ -354,6 +352,8 @@ def sum_llm_usages(llm_usages: list[LLMUsage]) -> LLMUsage:
     net_usage.output_token += usage.output_token
     net_usage.total_token += usage.total_token
     net_usage.latency += usage.latency
+    net_usage.llm = usage.llm
+
   return net_usage
 
 
