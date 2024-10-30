@@ -49,7 +49,7 @@ async def _init_gitsrv(gitsrv_type: GitServiceType,
     if not skip_init:
       await gitsrv.init_service(feature_branch=feature_branch, base_branch=base_branch)
   else:
-    raise NotImplementedError(f"Unspported gitsrv_type: {gitsrv_type}")
+    raise NotImplementedError(f"Unsupported gitsrv_type: {gitsrv_type}")
 
   return gitsrv
 
@@ -71,7 +71,7 @@ async def _init_llmsrv(llm_type: LLMServiceType) -> LLMService:
       model=ANTHROPIC_MODEL,
     )
   else:
-    raise NotImplementedError(f"Unspported llm_type: {llm_type}")
+    raise NotImplementedError(f"Unsupported llm_type: {llm_type}")
 
   return llmsrv
 

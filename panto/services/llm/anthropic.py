@@ -46,9 +46,7 @@ class AnthropicService(LLMService):
       max_tokens=4096,
     )
 
-    response = ""
-    for c in message.content:
-      response += c.text
+    response = ''.join(c.text for c in message.content)
 
     system_token = len(await self.get_encode(system_msg))
     user_token = sum([len(await self.get_encode(msg)) for msg in user_msgs])

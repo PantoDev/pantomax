@@ -415,6 +415,6 @@ async def _init_llmsrv(llm_type: LLMServiceType) -> LLMService:
       model=ANTHROPIC_MODEL,
     )
   else:
-    raise NotImplementedError(f"Unspported llm_type: {llm_type}")
+    raise NotImplementedError(f"Unsupported llm_type: {llm_type}")
 
   return llmsrv
