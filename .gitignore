@@ -8,6 +8,7 @@ database/*
 tmp/*
 !tmp/.gitkeep
 project.zip
+.scannerwork
 .json/*
 .DS_Store
 .prompt.txt
