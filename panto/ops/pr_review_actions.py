@@ -232,6 +232,7 @@ class PRActions:
       return
 
     try:
+      log.info("Generating suggestions using LLM...")
       suggestion_result = await pr_review.get_suggetions()
     except LargeTokenException as e:
       max_budget = e.max_budget_token
@@ -260,6 +261,8 @@ class PRActions:
       )
       raise e
 
+    log.info("Suggestions generated from LLM")
+
     prsuggestions, unfiltered_suggestions, review_usages, correction_llm_usages = suggestion_result
 
     unfiltered_suggestions_count = len(unfiltered_suggestions)
@@ -271,7 +274,7 @@ class PRActions:
       correction_llm_usages) if correction_llm_usages else None
 
     if not prsuggestions.suggestions and skip_empty_review_suggestion:
-      log.info("No suggestions generated")
+      log.info("No suggestions generated for PR")
       await notification_srv.emit(
         f"No suggestions generated for {repo_name} PR {pr_no}. Skipping default review comments.")
       return

@@ -111,3 +111,6 @@ DB_URI = f"postgresql+asyncpg://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATAB
 DEFAULT_NOTIFICATION_SRV = os.getenv('DEFAULT_NOTIFICATION_SRV') or 'NOOP'
 DEFAULT_METRICS_COLLECTION_SRV = os.getenv('DEFAULT_METRICS_COLLECTION_SRV') or 'NOOP'
 DEFAULT_CONFIG_STORAGE_SRV = os.getenv('DEFAULT_CONFIG_STORAGE_SRV') or 'NOOP'
+
+review_tools_str = os.getenv('REVIEW_TOOLS') or ''
+REVIEW_TOOLS = review_tools_str.split(',') if review_tools_str else []

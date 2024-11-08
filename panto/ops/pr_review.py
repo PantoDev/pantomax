@@ -1,3 +1,4 @@
+import importlib
 import re
 import uuid
 from datetime import datetime
@@ -7,16 +8,16 @@ from openai import APIError as OpenAIAPIError
 
 from panto.config import (FF_ENABLE_AST_DIFF, LLM_TWO_WAY_CORRECTION_ENABLED,
                           LLM_TWO_WAY_CORRECTION_SOFT_THRESHOLD, LLM_TWO_WAY_CORRECTION_THRESHOLD,
-                          jinja_env)
+                          REVIEW_TOOLS, jinja_env)
 from panto.data_models.git import GitPatchFile, GitPatchStatus, PRPatches
 from panto.data_models.pr_review import PRSuggestions, Suggestion
 from panto.data_models.review_config import ConfigRule, ReviewConfig
 from panto.logging import log
+from panto.ops.misc import GitReviewFile, PantoReviewTool
 from panto.services.git.git_service import GitService
 from panto.services.llm.llm_service import LLMService, LLMUsage
 from panto.services.notification import NotificationService
-from panto.utils.git import (ParsedDiff, drop_empty_patches, make_diff, make_old_file_content,
-                             omit_no_endlines_from_patch, parse_hunk_diff, parsed_hunk_to_string)
+from panto.utils.git import drop_empty_patches, omit_no_endlines_from_patch, parsed_hunk_to_string
 from panto.utils.misc import is_file_include, log_llm_io, log_llm_usage, restricted_extensions
 
 _review_system_template = jinja_env.get_template('pr_review/system.jinja')
@@ -25,54 +26,6 @@ _correction_system_template = jinja_env.get_template('review_corrections/system.
 _correction_user_template = jinja_env.get_template('review_corrections/user.jinja')
 _no_issues_msg = "@no_issues_found@"
 TOKEN_ADJUSTMENT = 100
-
-
-class GitReviewFile():
-
-  def __init__(
-    self,
-    filename: str,
-    content: str,
-    patchfile: GitPatchFile,
-  ) -> None:
-    self.filename = filename
-    self.content = content
-    self.patchfile = patchfile
-    self.parsed_diff: ParsedDiff = None  # type: ignore
-    self.expanded_parsed_diff: ParsedDiff | None = None
-
-  async def prepare(self, max_diff_lines: int, ast_diff: bool):
-    self.parsed_diff = parse_hunk_diff(self.patchfile.patch)
-    await self._expand_diff(
-      max_diff_lines=max_diff_lines,
-      ast_diff=ast_diff,
-    )
-
-  async def _expand_diff(self, max_diff_lines: int, ast_diff: bool):
-    if ast_diff:
-      await self._expand_diff_with_ast(max_diff_lines)
-      return
-
-    self._expand_diff_with_git(max_diff_lines)
-
-  async def _expand_diff_with_ast(self, max_diff_lines: int):
-    from panto_ast import expand_diff_with_ast, get_ast_helper
-    if ast_helper := get_ast_helper(self.filename):
-      new_diff = await expand_diff_with_ast(
-        ast_helper,
-        self.content,
-        self.parsed_diff,
-      )
-      self.expanded_parsed_diff = new_diff
-
-  def _expand_diff_with_git(self, max_diff_lines: int):
-    if max_diff_lines <= 3:
-      # If expand_lines is less than or equal to 3, we don't need to expand the diff
-      self.expanded_parsed_diff = self.parsed_diff
-      return
-    old_file_content = make_old_file_content(self.content, self.parsed_diff)
-    expanded_str_diff = make_diff(self.content, old_file_content, max_diff_lines)
-    self.expanded_parsed_diff = parse_hunk_diff(expanded_str_diff)
 
 
 class PRReview():
@@ -154,8 +107,8 @@ class PRReview():
       review_files.append(review_file)
 
     if FF_ENABLE_AST_DIFF:
-      from panto_ast import expand_review_files_with_ast
-      review_files = await expand_review_files_with_ast(review_files, self)
+      panto_ast = importlib.import_module('panto_ast')
+      review_files = await panto_ast.expand_review_files_with_ast(review_files, self)
 
     self.review_files = review_files
 
@@ -221,29 +174,59 @@ class PRReview():
       discarded_suggestions,
     ], correction_llm_usages = refined
 
+    tools_suggestions: list[Suggestion] = []
+    try:
+      tools_suggestions = await self.get_suggetions_from_tools()
+    except Exception as e:
+      await self.notification_srv.emit(f"Error while asking review tools.\nid={self.req_id}\n{e}")
+      log.error(f"Error while asking review tools: {e}")
+
     level1_count = len(level1_refined_suggestions)
     level2_count = len(level2_refined_suggestions)
     removed_count = len(discarded_suggestions)
+    tools_suggestions_count = len(tools_suggestions)
 
     log.info(f"Total: {len(unfiltered_suggestions)}"
              f" -> Level1: {level1_count},"
-             f" Level2: {level2_count}, Removed: {removed_count}")
+             f" Level2: {level2_count}, Removed: {removed_count}..."
+             f" Tools: {tools_suggestions_count}")
 
     await self.notification_srv.emit_suggestions_generated(
       repo_url=self.repo_name,
       inital_count=len(unfiltered_suggestions),
       final_count=level1_count,
       level2_count=level2_count,
+      tools_count=tools_suggestions_count,
       request_id=self.req_id,
     )
 
     review_comment = f"Reviewed up to commit:{last_reviewed_commit}"
 
+    level1_refined_suggestions.extend(tools_suggestions)
     return PRSuggestions(
       suggestions=level1_refined_suggestions,
       level2_suggestions=level2_refined_suggestions,
       review_comment=review_comment,
     ), unfiltered_suggestions, review_usages, correction_llm_usages
+
+  async def get_suggetions_from_tools(self) -> list[Suggestion]:
+    tools = REVIEW_TOOLS
+    if not tools:
+      return []
+
+    suggestions: list[Suggestion] = []
+    tools_module = importlib.import_module("panto_tools")
+    for tool in tools:
+      tool_class: type[PantoReviewTool] = getattr(tools_module, tool)
+      ins = tool_class()
+      s = await ins.get_suggestions(
+        review_files=self.review_files,
+        review_config=self.review_config,
+        llmsrv=self.llmsrv,
+      )
+      suggestions.extend(s)
+
+    return suggestions
 
   async def _refine_suggestions(
     self, suggestions: list[Suggestion]
