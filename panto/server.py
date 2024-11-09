@@ -1,3 +1,5 @@
+import importlib
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
 from fastapi.responses import ORJSONResponse
@@ -26,8 +28,8 @@ def create_app():
   init_app(app)
 
   try:
-    from panto_dashboard import init_app as init_dashboard_app
-    init_dashboard_app(app)
+    panto_dashboard = importlib.import_module('panto_dashboard')
+    panto_dashboard.init_app(app)
   except ImportError:
     pass
 
