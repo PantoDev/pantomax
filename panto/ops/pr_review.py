@@ -166,20 +166,16 @@ class PRReview():
 
     last_reviewed_commit = self.pr_patches.head
 
-    refined = await self._refine_suggestions(unfiltered_suggestions)
+    tools_suggestions = await self.get_suggetions_from_tools()
+    if tools_suggestions:
+      unfiltered_suggestions.extend(tools_suggestions)
 
+    refined = await self._refine_suggestions(unfiltered_suggestions)
     [
       level1_refined_suggestions,
       level2_refined_suggestions,
       discarded_suggestions,
     ], correction_llm_usages = refined
-
-    tools_suggestions: list[Suggestion] = []
-    try:
-      tools_suggestions = await self.get_suggetions_from_tools()
-    except Exception as e:
-      await self.notification_srv.emit(f"Error while asking review tools.\nid={self.req_id}\n{e}")
-      log.error(f"Error while asking review tools: {e}")
 
     level1_count = len(level1_refined_suggestions)
     level2_count = len(level2_refined_suggestions)
@@ -202,29 +198,35 @@ class PRReview():
 
     review_comment = f"Reviewed up to commit:{last_reviewed_commit}"
 
-    level1_refined_suggestions.extend(tools_suggestions)
     return PRSuggestions(
       suggestions=level1_refined_suggestions,
       level2_suggestions=level2_refined_suggestions,
       review_comment=review_comment,
     ), unfiltered_suggestions, review_usages, correction_llm_usages
 
-  async def get_suggetions_from_tools(self) -> list[Suggestion]:
+  async def get_suggetions_from_tools(self, silent_err=True) -> list[Suggestion]:
     tools = REVIEW_TOOLS
     if not tools:
       return []
-
     suggestions: list[Suggestion] = []
-    tools_module = importlib.import_module("panto_tools")
-    for tool in tools:
-      tool_class: type[PantoReviewTool] = getattr(tools_module, tool)
-      ins = tool_class()
-      s = await ins.get_suggestions(
-        review_files=self.review_files,
-        review_config=self.review_config,
-        llmsrv=self.llmsrv,
-      )
-      suggestions.extend(s)
+    try:
+      tools_module = importlib.import_module("panto_tools")
+      for tool in tools:
+        tool_class: type[PantoReviewTool] = getattr(tools_module, tool)
+        ins = tool_class()
+        s = await ins.get_suggestions(
+          review_files=self.review_files,
+          review_config=self.review_config,
+          llmsrv=self.llmsrv,
+        )
+        suggestions.extend(s)
+    except Exception as e:
+      if not silent_err:
+        raise
+      log.error(f"Error while asking review tools: {e}")
+      await self.notification_srv.emit(
+        f"Error while asking review tools.\nid={self.req_id}\n{e}", )
+      return suggestions
 
     return suggestions
 
