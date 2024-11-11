@@ -1,7 +1,7 @@
 from panto.config import (ANTHROPIC_API_KEY, ANTHROPIC_MODEL, DEFAULT_REVIEW_LLM_SRV,
                           EXPANDED_DIFF_LINES, GPT_MAX_TOKENS, IS_PROD,
                           MAX_TOKEN_BUDGET_FOR_AUTO_REVIEW, MAX_TOKEN_BUDGET_FOR_REVIEW,
-                          OPENAI_API_KEY, OPENAI_MODEL)
+                          OPENAI_API_KEY, OPENAI_MODEL, REVIEW_TOOLS)
 from panto.data_models.git import PRStatus
 from panto.data_models.pr_review import PRSuggestions
 from panto.logging import log
@@ -162,6 +162,20 @@ class PRActions:
         # Ignore if reaction fails
         pass
 
+    if not review_config.enabled:
+      log.info("Review disabled")
+      await gitsrv.add_comment(
+        pr_no,
+        branding.mark("Automated PR Review is disabled for this PR. Please change the config."),
+      )
+      return
+
+    review_tools = await _get_review_tools(
+      repo_url=repo_url,
+      config_storage_srv=config_storage_srv,
+      git_provider=gitsrv_type,
+    )
+
     pr_review = PRReview(
       repo_name=repo_name,
       pr_no=pr_no,
@@ -172,15 +186,9 @@ class PRActions:
       expanded_diff_lines=EXPANDED_DIFF_LINES,
       pr_title=pr_title,
       max_budget_token=max_budget_token,
+      review_tools=review_tools,
     )
     req_id = pr_review.req_id
-    if not review_config.enabled:
-      log.info("Review disabled")
-      await gitsrv.add_comment(
-        pr_no,
-        branding.mark("Automated PR Review is disabled for this PR. Please change the config."),
-      )
-      return
 
     if not is_forced_review:
       pr_head_hash = await gitsrv.get_pr_head(int(pr_no))
@@ -399,6 +407,18 @@ async def _get_last_reviewed_data(
     review_data = review_data.review_json
     prsuggestions = PRSuggestions.model_validate(review_data)
     return prsuggestions, last_review_session.id
+
+
+async def _get_review_tools(
+  repo_url: str,
+  config_storage_srv: ConfigStorageService,
+  git_provider: GitServiceType,
+) -> list[str]:
+  repo_url = repo_url.lower()
+  account_config = await config_storage_srv.get_account_config(git_provider.value, repo_url)
+  if not account_config:
+    return REVIEW_TOOLS
+  return account_config.get("review_tools") or REVIEW_TOOLS
 
 
 async def _init_llmsrv(llm_type: LLMServiceType) -> LLMService:

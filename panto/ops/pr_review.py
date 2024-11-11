@@ -8,7 +8,7 @@ from openai import APIError as OpenAIAPIError
 
 from panto.config import (FF_ENABLE_AST_DIFF, LLM_TWO_WAY_CORRECTION_ENABLED,
                           LLM_TWO_WAY_CORRECTION_SOFT_THRESHOLD, LLM_TWO_WAY_CORRECTION_THRESHOLD,
-                          REVIEW_TOOLS, jinja_env)
+                          jinja_env)
 from panto.data_models.git import GitPatchFile, GitPatchStatus, PRPatches
 from panto.data_models.pr_review import PRSuggestions, Suggestion
 from panto.data_models.review_config import ConfigRule, ReviewConfig
@@ -30,17 +30,20 @@ TOKEN_ADJUSTMENT = 100
 
 class PRReview():
 
-  def __init__(self,
-               *,
-               repo_name: str,
-               pr_no: int,
-               gitsrv: GitService,
-               llmsrv: LLMService,
-               notification_srv: NotificationService,
-               review_config: ReviewConfig,
-               pr_title: str = "",
-               expanded_diff_lines: int = 10,
-               max_budget_token: int | None = None) -> None:
+  def __init__(
+    self,
+    *,
+    repo_name: str,
+    pr_no: int,
+    gitsrv: GitService,
+    llmsrv: LLMService,
+    notification_srv: NotificationService,
+    review_config: ReviewConfig,
+    pr_title: str = "",
+    expanded_diff_lines: int = 10,
+    max_budget_token: int | None = None,
+    review_tools: list[str] | None = None,
+  ) -> None:
     self.repo_name = repo_name
     self.pr_no = pr_no
     self.gitsrv = gitsrv
@@ -52,6 +55,7 @@ class PRReview():
     self.pr_title = pr_title
     self.pr_patches: PRPatches = None  # type: ignore
     self.max_budget_token = max_budget_token
+    self.review_tools = review_tools
     n_repo = self.repo_name.replace("/", "__")
     self.req_id = f"{int(datetime.now().timestamp())}.{n_repo}.{self.pr_no}.{str(uuid.uuid4().hex)[-6:]}"  # noqa: E501
 
@@ -180,7 +184,7 @@ class PRReview():
     level1_count = len(level1_refined_suggestions)
     level2_count = len(level2_refined_suggestions)
     removed_count = len(discarded_suggestions)
-    tools_suggestions_count = len(tools_suggestions)
+    tools_suggestions_count = len(tools_suggestions) if tools_suggestions else 0
 
     log.info(f"Total: {len(unfiltered_suggestions)}"
              f" -> Level1: {level1_count},"
@@ -204,14 +208,13 @@ class PRReview():
       review_comment=review_comment,
     ), unfiltered_suggestions, review_usages, correction_llm_usages
 
-  async def get_suggetions_from_tools(self, silent_err=True) -> list[Suggestion]:
-    tools = REVIEW_TOOLS
-    if not tools:
-      return []
+  async def get_suggetions_from_tools(self, silent_err=True) -> list[Suggestion] | None:
+    if not self.review_tools:
+      return None
     suggestions: list[Suggestion] = []
     try:
       tools_module = importlib.import_module("panto_tools")
-      for tool in tools:
+      for tool in self.review_tools:
         tool_class: type[PantoReviewTool] = getattr(tools_module, tool)
         ins = tool_class()
         s = await ins.get_suggestions(
