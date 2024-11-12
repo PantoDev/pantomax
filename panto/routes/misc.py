@@ -21,7 +21,7 @@ async def hello():
     "installation": {
       "github": "https://github.com/apps/pantomaxbot",
       "bitbucket": "https://app.pantomax.co/bitbucket/atlassian-connect.json",
-      "gitlab": "Contact us at support@pantomax.co"
+      "gitlab": "Contact us at hello@pantomax.co"
     }
 }
 </pre>"""
