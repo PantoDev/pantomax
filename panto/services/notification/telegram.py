@@ -82,10 +82,15 @@ class TelegramNotificationService(NotificationService):
                                        final_count: int,
                                        level2_count: int,
                                        tools_count: int,
+                                       tools_latency: int | float,
                                        request_id: str | None = None):
-    msg = (f"📝 Suggestions Generated: \nInitial Count: {inital_count}"
-           f"\nFinal Count: {final_count}\nLevel2 Count: {level2_count}"
-           f"\nTools Count: {tools_count}\nRepo: {repo_url}")
+    msg = (f"📝 Suggestions Generated:"
+           f"\nInitial Count: {inital_count}"
+           f"\nFinal Count: {final_count}"
+           f"\nLevel2 Count: {level2_count}"
+           f"\nTools Count: {tools_count}"
+           f"\nTools Latency: {tools_latency}"
+           f"\nRepo: {repo_url}")
     if request_id:
       msg += f"\nRequest ID: {request_id}"
     await self._emit(msg)

@@ -141,6 +141,7 @@ class PRReview():
         msg=log_msg,
       )
 
+      log.info("reviewing chunk files with LLM")
       try:
         answer_str, review_usage = await self.llmsrv.ask(system_prompt,
                                                          user_prompt,
@@ -170,7 +171,11 @@ class PRReview():
 
     last_reviewed_commit = self.pr_patches.head
 
+    tools_start_t = datetime.now()
     tools_suggestions = await self.get_suggetions_from_tools()
+    tools_end_t = datetime.now()
+    tools_latency = (tools_end_t - tools_start_t).total_seconds()
+
     if tools_suggestions:
       unfiltered_suggestions.extend(tools_suggestions)
 
@@ -197,6 +202,7 @@ class PRReview():
       final_count=level1_count,
       level2_count=level2_count,
       tools_count=tools_suggestions_count,
+      tools_latency=tools_latency,
       request_id=self.req_id,
     )
 

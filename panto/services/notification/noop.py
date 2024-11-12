@@ -55,6 +55,7 @@ class NoopNotificationService(NotificationService):
                                        final_count: int,
                                        level2_count: int,
                                        tools_count: int,
+                                       tools_latency: int | float,
                                        request_id: str | None = None):
     log.info(
       f"[NOTIFICATION]Suggestions generated for {repo_url}: {inital_count} -> {final_count} + {level2_count}. Request ID: {request_id}"  # noqa

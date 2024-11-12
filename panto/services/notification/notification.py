@@ -62,6 +62,7 @@ class NotificationService(abc.ABC):
                                        final_count: int,
                                        level2_count: int,
                                        tools_count: int,
+                                       tools_latency: int | float,
                                        request_id: str | None = None):
     pass
 
