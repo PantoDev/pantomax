@@ -89,7 +89,7 @@ class TelegramNotificationService(NotificationService):
            f"\nFinal Count: {final_count}"
            f"\nLevel2 Count: {level2_count}"
            f"\nTools Count: {tools_count}"
-           f"\nTools Latency: {tools_latency}"
+           f"\nTools Latency: {int(tools_latency)}s"
            f"\nRepo: {repo_url}")
     if request_id:
       msg += f"\nRequest ID: {request_id}"
