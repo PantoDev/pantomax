@@ -127,10 +127,10 @@ class PRActions:
 
     if not is_whitelisted:
       await notification_srv.emit_not_whitelisted_request(repo_url)
-      # msg = branding.mark(
-      #   "Automated PR Review not enabled for this repo. Please contact with support `support@pantomax.co`\nThank you."  # noqa
-      # )  # noqa
-      # await gitsrv.add_comment(pr_no, msg)
+      msg = branding.mark(
+        "Automated PR Review not enabled for this repo. Please contact with support `hello@pantomax.co`\nThank you."  # noqa
+      )  # noqa
+      await gitsrv.add_comment(pr_no, msg)
       return
 
     comment_body = comment_body.strip().lower()
