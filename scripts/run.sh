@@ -8,6 +8,17 @@ if ! [ -x "$(which git)" ]; then
    apt-get install -y git
 fi
 
+panto_tools_init_script="./panto_tools/init.sh"
+if [[ -f "$panto_tools_init_script" ]]; then
+    echo "Executing $panto_tools_init_script..."
+
+   if ! "$panto_tools_init_script"; then
+        echo "failed to execute $panto_tools_init_script"
+    fi
+else
+    echo "$panto_tools_init_script file not found. Skipping execution."
+fi
+
 if [ -e ".envrc" ]; then
    echo "sourcing .envrc file."
    source .envrc
