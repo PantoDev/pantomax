@@ -22,8 +22,8 @@ pytz==2024.2
 requests==2.32.3
 sqlalchemy[asyncio]==2.0.35
 tiktoken==0.7.0
-tree-sitter-python==0.23.2
-tree_sitter==0.22.3
+tree-sitter==0.23.2
+tree-sitter-python==0.23.4
 types-pytz==2024.2.0.20240913
 types-requests==2.32.0.20240712
 uvicorn[standard]==0.32.0
