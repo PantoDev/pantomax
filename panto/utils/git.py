@@ -215,26 +215,6 @@ def make_old_file_content(new_file_content: str, parsed_diff: ParsedDiff):
   return '\n'.join(old_file_content_lines)
 
 
-def create_diff_from_line(oldfile_content, new_content, start_line, diff_len):
-  if diff_len < 0:
-    raise ValueError("diff_len must be a non-negative integer")
-
-  if start_line < 1:
-    raise ValueError("start_line must be a positive integer")
-
-  oldfile_content = oldfile_content.split('\n')[start_line - 1:start_line - 1 + diff_len]
-  new_content = new_content.split('\n')[start_line - 1:start_line - 1 + diff_len]
-
-  changes = []
-  # TODO: This is wrong, we have to add the extra line count after the diff generation
-  for text in difflib.unified_diff(oldfile_content, new_content, lineterm='', n=diff_len):
-    if text.startswith('---') or text.startswith('+++'):
-      continue
-    changes.append(text)
-
-  return "\n".join(changes)
-
-
 def parsed_hunk_to_string(hunk: Hunk, add_header=True, add_lineno=True) -> str:
   diff_content = ""
   if add_header:
