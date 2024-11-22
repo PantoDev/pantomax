@@ -235,45 +235,6 @@ def create_diff_from_line(oldfile_content, new_content, start_line, diff_len):
   return "\n".join(changes)
 
 
-def merge_hunks(diffs: list[str]) -> list[str]:
-  parsed_diffs = [parse_hunk_diff(diff) for diff in diffs if diff]
-  sorted_diff = sorted(parsed_diffs, key=lambda hunk: hunk.hunks[0].old_diff_start)
-
-  merged_diff: list[list] = []
-  for diff in sorted_diff:
-    hunk = diff.hunks[0]
-    old_start = hunk.old_diff_start
-    new_start = hunk.new_diff_start
-    content = parsed_hunk_to_string(hunk, add_header=False, add_lineno=False).split('\n')
-    old_end = hunk.old_diff_start + hunk.old_diff_length
-    new_end = hunk.new_diff_start + hunk.new_diff_length
-    if not merged_diff:
-      merged_diff.append([old_start, old_end, new_start, new_end, content])
-      continue
-
-    last_old_start, last_old_end, last_new_start, last_new_end, last_content = merged_diff[-1]
-    if old_start == last_old_start and new_start == last_new_start:
-      continue  # duplicate hunk
-    if (old_start <= last_old_end
-        and old_end >= last_old_start) or (new_start <= last_new_end
-                                           and new_end >= last_new_start):
-      merged_diff[-1][1] = max(last_old_end, old_end)
-      merged_diff[-1][3] = max(last_new_end, new_end)
-      merged_diff[-1][4] = last_content + content[len(last_content):]
-      continue
-
-    merged_diff.append([old_start, old_end, new_start, new_end, content])
-
-  merged_diff_strings = []
-  for old_start, old_end, new_start, new_end, content in merged_diff:
-    old_length = old_end - old_start
-    new_length = new_end - new_start
-    header = f"@@ -{old_start},{old_length} +{new_start},{new_length} @@"
-    merged_diff_strings.append('\n'.join([header] + content))
-
-  return merged_diff_strings
-
-
 def parsed_hunk_to_string(hunk: Hunk, add_header=True, add_lineno=True) -> str:
   diff_content = ""
   if add_header:
