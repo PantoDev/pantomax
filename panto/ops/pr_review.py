@@ -104,10 +104,20 @@ class PRReview():
       if patchfile.status == GitPatchStatus.RENAMED and not patchfile.patch:
         continue
       review_file = await self._read_file_content_and_diff(patchfile, self.pr_patches.head)
-      await review_file.prepare(
-        max_diff_lines=self.expanded_diff_lines,
-        ast_diff=FF_ENABLE_AST_DIFF,
-      )
+      try:
+        await review_file.prepare(
+          max_diff_lines=self.expanded_diff_lines,
+          ast_diff=FF_ENABLE_AST_DIFF,
+        )
+      except Exception as e:
+        if not FF_ENABLE_AST_DIFF:
+          raise
+        log.error(f"Error while preparing review file with AST: {e}")
+        await review_file.prepare(
+          max_diff_lines=self.expanded_diff_lines,
+          ast_diff=False,
+        )
+
       review_files.append(review_file)
 
     if FF_ENABLE_AST_DIFF:
