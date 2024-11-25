@@ -147,9 +147,11 @@ def make_diff_v2(new_file_content: str, old_file_content: str, n_lines: int):
       new_file.close()
       old_file.close()
       try:
-        result = subprocess.run(['git', 'diff', '--no-index', old_file.name, new_file.name],
-                                text=True,
-                                capture_output=True)
+        result = subprocess.run(
+          ['git', 'diff', f"-U{n_lines}", '--no-index', old_file.name, new_file.name],
+          text=True,
+          capture_output=True,
+        )
         diff_output = result.stdout
         error_output = result.stderr
         if error_output:
